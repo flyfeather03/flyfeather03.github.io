@@ -18,6 +18,12 @@
       short: "计系导",
       subtitle: "ICS 全套课件，程序员视角理解系统",
       accent: "blue"
+    },
+    compiler: {
+      label: "编译原理",
+      short: "编原",
+      subtitle: "Arthals 编译原理笔记",
+      accent: "violet"
     }
   };
 
