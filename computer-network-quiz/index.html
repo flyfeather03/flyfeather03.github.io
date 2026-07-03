@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>计算机网络前五讲单选练习</title>
+  <link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <svg class="brand-mark" viewBox="0 0 80 80" role="img" aria-label="network">
+        <path d="M14 22h16v16H14zM50 10h16v16H50zM50 48h16v16H50zM26 30l26-12M30 32l22 24M58 26v22" />
+        <circle cx="22" cy="30" r="5" />
+        <circle cx="58" cy="18" r="5" />
+        <circle cx="58" cy="56" r="5" />
+      </svg>
+      <div>
+        <h1>计算机网络前五讲单选练习</h1>
+        <a class="profile-link" href="https://github.com/flyfeather03" target="_blank" rel="noreferrer">github.com/flyfeather03</a>
+      </div>
+    </div>
+    <div class="scoreboard" aria-live="polite">
+      <div><span id="answeredCount">0</span><small>已答</small></div>
+      <div><span id="correctCount">0</span><small>正确</small></div>
+      <div><span id="accuracy">0%</span><small>正确率</small></div>
+    </div>
+  </header>
+
+  <main>
+    <section class="toolbar" aria-label="filters">
+      <div class="tabs" id="lectureTabs"></div>
+      <div class="actions">
+        <button id="wrongOnlyBtn" type="button" class="ghost">错题</button>
+        <button id="shuffleBtn" type="button" class="ghost">打乱</button>
+        <button id="resetBtn" type="button" class="solid">重做</button>
+      </div>
+    </section>
+
+    <section class="progress-wrap" aria-label="progress">
+      <div class="progress-track"><div id="progressBar" class="progress-bar"></div></div>
+    </section>
+
+    <section id="quizList" class="quiz-list"></section>
+  </main>
+
+  <template id="questionTemplate">
+    <article class="question-card">
+      <div class="question-head">
+        <span class="number"></span>
+        <span class="tag"></span>
+      </div>
+      <h2 class="question-title"></h2>
+      <div class="options"></div>
+      <div class="result" aria-live="polite"></div>
+      <details class="explain">
+        <summary>解析与课件出处</summary>
+        <p class="source"></p>
+        <p class="detail"></p>
+      </details>
+    </article>
+  </template>
+
+  <script src="./quiz-data.js"></script>
+  <script src="./app.js"></script>
+</body>
+</html>
