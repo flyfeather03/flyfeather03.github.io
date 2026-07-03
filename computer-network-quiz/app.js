@@ -24,6 +24,12 @@
       short: "编原",
       subtitle: "Arthals 编译原理笔记",
       accent: "violet"
+    },
+    os: {
+      label: "操作系统",
+      short: "操统",
+      subtitle: "OS 课件：进程、同步、调度、内存、I/O、文件系统",
+      accent: "coral"
     }
   };
 
@@ -124,10 +130,10 @@
   function setHeader() {
     if (state.view === "home") {
       pageTitle.textContent = "课程选择题练习";
-      pageSubtitle.textContent = "选择计网、计组，或把所有题目打散练习";
+      pageSubtitle.textContent = "选择单门课程，或把所有题目打散练习";
     } else if (state.view === "mixed") {
       pageTitle.textContent = "全部题目打散练习";
-      pageSubtitle.textContent = "计网 + 计组混合出题，适合考前随机扫盲";
+      pageSubtitle.textContent = "所有课程混合出题，适合考前随机扫盲";
     } else {
       pageTitle.textContent = `${courseInfo[state.course].label}选择题`;
       pageSubtitle.textContent = courseInfo[state.course].subtitle;
