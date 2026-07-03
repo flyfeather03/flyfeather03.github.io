@@ -1,13 +1,39 @@
 (function () {
   const letters = ["A", "B", "C", "D"];
-  const allQuestions = window.quizQuestions || [];
-  const state = {
-    activeLecture: "全部",
-    wrongOnly: false,
-    order: allQuestions.map((q) => q.id),
-    answers: JSON.parse(localStorage.getItem("networkQuizAnswers") || "{}")
+  const courseInfo = {
+    network: {
+      label: "计算机网络",
+      short: "计网",
+      subtitle: "前五讲，应用层/传输层/网络层/链路层",
+      accent: "teal"
+    },
+    org: {
+      label: "计算机组成",
+      short: "计组",
+      subtitle: "计算机组织与体系结构课件",
+      accent: "amber"
+    }
   };
 
+  const allQuestions = (window.quizQuestions || []).map((q) => ({
+    ...q,
+    course: q.course || "network"
+  }));
+
+  const state = {
+    view: "home",
+    course: null,
+    activeLecture: "全部",
+    wrongOnly: false,
+    order: allQuestions.map((q) => questionKey(q)),
+    answers: JSON.parse(localStorage.getItem("unifiedQuizAnswers") || "{}")
+  };
+
+  const pageTitle = document.getElementById("pageTitle");
+  const pageSubtitle = document.getElementById("pageSubtitle");
+  const homePanel = document.getElementById("homePanel");
+  const toolbar = document.getElementById("toolbar");
+  const progressWrap = document.getElementById("progressWrap");
   const quizList = document.getElementById("quizList");
   const template = document.getElementById("questionTemplate");
   const lectureTabs = document.getElementById("lectureTabs");
@@ -15,28 +41,117 @@
   const correctCount = document.getElementById("correctCount");
   const accuracy = document.getElementById("accuracy");
   const progressBar = document.getElementById("progressBar");
+  const homeBtn = document.getElementById("homeBtn");
   const wrongOnlyBtn = document.getElementById("wrongOnlyBtn");
   const shuffleBtn = document.getElementById("shuffleBtn");
   const resetBtn = document.getElementById("resetBtn");
 
-  function save() {
-    localStorage.setItem("networkQuizAnswers", JSON.stringify(state.answers));
+  function questionKey(question) {
+    return `${question.course || "network"}:${question.id}`;
   }
 
-  function currentQuestions() {
-    const byId = new Map(allQuestions.map((q) => [q.id, q]));
-    return state.order
-      .map((id) => byId.get(id))
-      .filter(Boolean)
-      .filter((q) => state.activeLecture === "全部" || q.lecture === state.activeLecture)
-      .filter((q) => {
-        if (!state.wrongOnly) return true;
-        return state.answers[q.id] !== undefined && state.answers[q.id] !== q.answer;
-      });
+  function save() {
+    localStorage.setItem("unifiedQuizAnswers", JSON.stringify(state.answers));
+  }
+
+  function parseHash() {
+    const hash = location.hash.replace(/^#/, "");
+    if (hash === "mixed") {
+      state.view = "mixed";
+      state.course = null;
+      return;
+    }
+    if (hash.startsWith("course=")) {
+      const course = hash.split("=")[1];
+      state.view = "course";
+      state.course = courseInfo[course] ? course : "network";
+      return;
+    }
+    state.view = "home";
+    state.course = null;
+  }
+
+  function scopedQuestions(ignoreLecture) {
+    let questions = allQuestions;
+    if (state.view === "course") {
+      questions = questions.filter((q) => q.course === state.course);
+    } else if (state.view === "mixed") {
+      questions = questions.slice();
+    } else {
+      return allQuestions;
+    }
+
+    if (!ignoreLecture && state.activeLecture !== "全部") {
+      questions = questions.filter((q) => q.lecture === state.activeLecture || `${courseInfo[q.course].short} ${q.lecture}` === state.activeLecture);
+    }
+
+    if (state.wrongOnly) {
+      questions = questions.filter((q) => state.answers[questionKey(q)] !== undefined && state.answers[questionKey(q)] !== q.answer);
+    }
+
+    const byKey = new Map(questions.map((q) => [questionKey(q), q]));
+    return state.order.map((key) => byKey.get(key)).filter(Boolean);
+  }
+
+  function countFor(questions) {
+    const answered = questions.filter((q) => state.answers[questionKey(q)] !== undefined);
+    const correct = answered.filter((q) => state.answers[questionKey(q)] === q.answer);
+    return { answered, correct };
+  }
+
+  function updateStats() {
+    const questions = state.view === "home" ? allQuestions : scopedQuestions(true);
+    const { answered, correct } = countFor(questions);
+    const percent = answered.length ? Math.round((correct.length / answered.length) * 100) : 0;
+    answeredCount.textContent = answered.length;
+    correctCount.textContent = correct.length;
+    accuracy.textContent = `${percent}%`;
+    progressBar.style.width = `${questions.length ? Math.round((answered.length / questions.length) * 100) : 0}%`;
+  }
+
+  function setHeader() {
+    if (state.view === "home") {
+      pageTitle.textContent = "课程选择题练习";
+      pageSubtitle.textContent = "选择计网、计组，或把所有题目打散练习";
+    } else if (state.view === "mixed") {
+      pageTitle.textContent = "全部题目打散练习";
+      pageSubtitle.textContent = "计网 + 计组混合出题，适合考前随机扫盲";
+    } else {
+      pageTitle.textContent = `${courseInfo[state.course].label}选择题`;
+      pageSubtitle.textContent = courseInfo[state.course].subtitle;
+    }
+  }
+
+  function renderHome() {
+    homePanel.replaceChildren();
+    const cards = [
+      ...Object.entries(courseInfo).map(([key, info]) => ({ key, ...info, href: `#course=${key}`, questions: allQuestions.filter((q) => q.course === key) })),
+      { key: "mixed", label: "全部打散", short: "混合", subtitle: "所有课程题目随机混合", href: "#mixed", questions: allQuestions, accent: "coral" },
+      { key: "future", label: "后续更新", short: "更多", subtitle: "之后可以继续加入新课程题库", href: "", questions: [], accent: "gray", disabled: true }
+    ];
+
+    cards.forEach((card) => {
+      const { answered, correct } = countFor(card.questions);
+      const el = document.createElement(card.disabled ? "div" : "a");
+      el.className = `course-card ${card.accent}`;
+      if (!card.disabled) el.href = card.href;
+      el.innerHTML = `
+        <span class="course-pill">${card.short}</span>
+        <h2>${card.label}</h2>
+        <p>${card.subtitle}</p>
+        <div class="course-meta">
+          <span>${card.questions.length} 题</span>
+          <span>${answered.length} 已答</span>
+          <span>${correct.length} 正确</span>
+        </div>
+      `;
+      homePanel.appendChild(el);
+    });
   }
 
   function renderTabs() {
-    const lectures = ["全部", ...Array.from(new Set(allQuestions.map((q) => q.lecture)))];
+    const base = state.view === "mixed" ? allQuestions : allQuestions.filter((q) => q.course === state.course);
+    const lectures = ["全部", ...Array.from(new Set(base.map((q) => state.view === "mixed" ? `${courseInfo[q.course].short} ${q.lecture}` : q.lecture)))];
     lectureTabs.replaceChildren();
     lectures.forEach((lecture) => {
       const btn = document.createElement("button");
@@ -51,18 +166,9 @@
     });
   }
 
-  function updateStats() {
-    const answered = allQuestions.filter((q) => state.answers[q.id] !== undefined);
-    const correct = answered.filter((q) => state.answers[q.id] === q.answer);
-    const percent = answered.length ? Math.round((correct.length / answered.length) * 100) : 0;
-    answeredCount.textContent = answered.length;
-    correctCount.textContent = correct.length;
-    accuracy.textContent = `${percent}%`;
-    progressBar.style.width = `${Math.round((answered.length / allQuestions.length) * 100)}%`;
-  }
-
   function setResult(card, question) {
-    const chosen = state.answers[question.id];
+    const key = questionKey(question);
+    const chosen = state.answers[key];
     const result = card.querySelector(".result");
     const optionButtons = card.querySelectorAll(".option");
     const correctDisplayIndex = Array.from(optionButtons).findIndex((btn) => Number(btn.dataset.originalIndex) === question.answer);
@@ -77,10 +183,7 @@
     if (chosen === undefined) {
       result.textContent = "";
       result.className = "result";
-      return;
-    }
-
-    if (chosen === question.answer) {
+    } else if (chosen === question.answer) {
       result.textContent = "正确";
       result.className = "result ok";
     } else {
@@ -89,11 +192,21 @@
     }
   }
 
+  function hashSeed(value) {
+    const str = String(value);
+    let seed = 2166136261;
+    for (let i = 0; i < str.length; i += 1) {
+      seed ^= str.charCodeAt(i);
+      seed = Math.imul(seed, 16777619) >>> 0;
+    }
+    return seed;
+  }
+
   function displayOptions(question) {
     const choices = question.options.map((text, originalIndex) => ({ text, originalIndex }));
-    let seed = question.id * 2654435761;
+    let seed = hashSeed(questionKey(question));
     for (let i = choices.length - 1; i > 0; i -= 1) {
-      seed = (seed * 1664525 + 1013904223) >>> 0;
+      seed = (Math.imul(seed, 1664525) + 1013904223) >>> 0;
       const j = seed % (i + 1);
       [choices[i], choices[j]] = [choices[j], choices[i]];
     }
@@ -103,7 +216,7 @@
   function renderQuestion(question, index) {
     const node = template.content.firstElementChild.cloneNode(true);
     node.querySelector(".number").textContent = `第 ${index + 1} 题`;
-    node.querySelector(".tag").textContent = `${question.lecture} · ${question.topic}`;
+    node.querySelector(".tag").textContent = `${courseInfo[question.course].short} · ${question.lecture} · ${question.topic}`;
     node.querySelector(".question-title").textContent = question.question;
     node.querySelector(".source").textContent = `课件出处：${question.source}`;
     node.querySelector(".detail").textContent = question.detail;
@@ -116,7 +229,7 @@
       btn.dataset.originalIndex = option.originalIndex;
       btn.innerHTML = `<span class="letter">${letters[optionIndex]}</span><span>${option.text}</span>`;
       btn.addEventListener("click", () => {
-        state.answers[question.id] = option.originalIndex;
+        state.answers[questionKey(question)] = option.originalIndex;
         save();
         setResult(node, question);
         updateStats();
@@ -128,11 +241,10 @@
     return node;
   }
 
-  function render() {
+  function renderQuiz() {
     renderTabs();
-    updateStats();
     wrongOnlyBtn.classList.toggle("is-on", state.wrongOnly);
-    const questions = currentQuestions();
+    const questions = scopedQuestions(false);
     quizList.replaceChildren();
 
     if (!questions.length) {
@@ -148,6 +260,23 @@
     quizList.appendChild(fragment);
   }
 
+  function render() {
+    setHeader();
+    updateStats();
+    const isHome = state.view === "home";
+    homePanel.hidden = !isHome;
+    toolbar.hidden = isHome;
+    progressWrap.hidden = isHome;
+    quizList.hidden = isHome;
+
+    if (isHome) {
+      renderHome();
+      quizList.replaceChildren();
+    } else {
+      renderQuiz();
+    }
+  }
+
   function shuffleOrder() {
     const next = [...state.order];
     for (let i = next.length - 1; i > 0; i -= 1) {
@@ -158,6 +287,10 @@
     render();
   }
 
+  homeBtn.addEventListener("click", () => {
+    location.hash = "";
+  });
+
   wrongOnlyBtn.addEventListener("click", () => {
     state.wrongOnly = !state.wrongOnly;
     render();
@@ -166,10 +299,20 @@
   shuffleBtn.addEventListener("click", shuffleOrder);
 
   resetBtn.addEventListener("click", () => {
-    state.answers = {};
+    scopedQuestions(true).forEach((q) => {
+      delete state.answers[questionKey(q)];
+    });
     save();
     render();
   });
 
+  window.addEventListener("hashchange", () => {
+    state.activeLecture = "全部";
+    state.wrongOnly = false;
+    parseHash();
+    render();
+  });
+
+  parseHash();
   render();
 })();

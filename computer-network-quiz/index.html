@@ -3,20 +3,21 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>计算机网络前五讲单选练习</title>
+  <title>课程选择题练习</title>
   <link rel="stylesheet" href="./styles.css">
 </head>
 <body>
   <header class="topbar">
     <div class="brand">
-      <svg class="brand-mark" viewBox="0 0 80 80" role="img" aria-label="network">
+      <svg class="brand-mark" viewBox="0 0 80 80" role="img" aria-label="quiz">
         <path d="M14 22h16v16H14zM50 10h16v16H50zM50 48h16v16H50zM26 30l26-12M30 32l22 24M58 26v22" />
         <circle cx="22" cy="30" r="5" />
         <circle cx="58" cy="18" r="5" />
         <circle cx="58" cy="56" r="5" />
       </svg>
       <div>
-        <h1>计算机网络前五讲单选练习</h1>
+        <h1 id="pageTitle">课程选择题练习</h1>
+        <p id="pageSubtitle" class="subtitle">选择计网、计组，或把所有题目打散练习</p>
         <a class="profile-link" href="https://github.com/flyfeather03" target="_blank" rel="noreferrer">github.com/flyfeather03</a>
       </div>
     </div>
@@ -28,20 +29,23 @@
   </header>
 
   <main>
-    <section class="toolbar" aria-label="filters">
+    <section id="homePanel" class="home-panel"></section>
+
+    <section id="toolbar" class="toolbar" aria-label="filters" hidden>
       <div class="tabs" id="lectureTabs"></div>
       <div class="actions">
+        <button id="homeBtn" type="button" class="ghost">首页</button>
         <button id="wrongOnlyBtn" type="button" class="ghost">错题</button>
         <button id="shuffleBtn" type="button" class="ghost">打乱</button>
         <button id="resetBtn" type="button" class="solid">重做</button>
       </div>
     </section>
 
-    <section class="progress-wrap" aria-label="progress">
+    <section id="progressWrap" class="progress-wrap" aria-label="progress" hidden>
       <div class="progress-track"><div id="progressBar" class="progress-bar"></div></div>
     </section>
 
-    <section id="quizList" class="quiz-list"></section>
+    <section id="quizList" class="quiz-list" hidden></section>
   </main>
 
   <template id="questionTemplate">

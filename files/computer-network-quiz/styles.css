@@ -72,6 +72,12 @@ h1 {
   line-height: 1.15;
 }
 
+.subtitle {
+  margin: 0 0 6px;
+  color: var(--muted);
+  line-height: 1.45;
+}
+
 .profile-link {
   color: var(--teal);
   text-decoration: none;
@@ -187,6 +193,95 @@ button.ghost.is-on {
   height: 100%;
   background: var(--teal);
   transition: width 0.25s ease;
+}
+
+.home-panel {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 14px;
+  align-items: stretch;
+}
+
+.course-card {
+  display: grid;
+  align-content: start;
+  min-height: 220px;
+  padding: 20px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--surface);
+  color: var(--ink);
+  text-decoration: none;
+  box-shadow: var(--shadow);
+  transition: transform 0.15s ease, border-color 0.15s ease;
+}
+
+.course-card:hover {
+  transform: translateY(-2px);
+  border-color: var(--teal);
+}
+
+.course-card.gray {
+  color: var(--muted);
+  background: #f3f4f2;
+  box-shadow: none;
+}
+
+.course-pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: fit-content;
+  min-height: 28px;
+  margin-bottom: 18px;
+  padding: 0 10px;
+  border-radius: 8px;
+  background: var(--teal-soft);
+  color: #073d39;
+  font-weight: 800;
+}
+
+.course-card.amber .course-pill {
+  background: var(--mustard-soft);
+  color: var(--mustard);
+}
+
+.course-card.coral .course-pill {
+  background: var(--coral-soft);
+  color: #7b231b;
+}
+
+.course-card.gray .course-pill {
+  background: #e2e5e2;
+  color: var(--muted);
+}
+
+.course-card h2 {
+  margin: 0 0 8px;
+  font-size: 24px;
+}
+
+.course-card p {
+  margin: 0;
+  color: var(--muted);
+  line-height: 1.6;
+}
+
+.course-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 22px;
+}
+
+.course-meta span {
+  min-height: 28px;
+  padding: 4px 8px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #fafafa;
+  color: var(--muted);
+  font-size: 13px;
 }
 
 .quiz-list {
@@ -348,6 +443,10 @@ button.ghost.is-on {
   .toolbar {
     align-items: stretch;
     flex-direction: column;
+  }
+
+  .home-panel {
+    grid-template-columns: 1fr;
   }
 
   .actions {
