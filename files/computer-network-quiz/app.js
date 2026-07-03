@@ -12,6 +12,12 @@
       short: "计组",
       subtitle: "计算机组织与体系结构课件",
       accent: "amber"
+    },
+    ics: {
+      label: "计算机系统导论",
+      short: "计系导",
+      subtitle: "ICS 全套课件，程序员视角理解系统",
+      accent: "blue"
     }
   };
 

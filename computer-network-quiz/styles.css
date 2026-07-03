@@ -10,6 +10,8 @@
   --coral-soft: #fde7e1;
   --mustard: #9a6a00;
   --mustard-soft: #fff1c7;
+  --blue: #2563eb;
+  --blue-soft: #e4edff;
   --shadow: 0 12px 30px rgba(24, 33, 42, 0.08);
 }
 
@@ -244,6 +246,11 @@ button.ghost.is-on {
 .course-card.amber .course-pill {
   background: var(--mustard-soft);
   color: var(--mustard);
+}
+
+.course-card.blue .course-pill {
+  background: var(--blue-soft);
+  color: var(--blue);
 }
 
 .course-card.coral .course-pill {
