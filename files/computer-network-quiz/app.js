@@ -30,6 +30,18 @@
       short: "操统",
       subtitle: "OS 课件：进程、同步、调度、内存、I/O、文件系统",
       accent: "coral"
+    },
+    mock1: {
+      label: "综合套题一",
+      short: "套题一",
+      subtitle: "稍难：混合计网、计组、计系导、编译原理、操作系统",
+      accent: "teal"
+    },
+    mock2: {
+      label: "综合套题二",
+      short: "套题二",
+      subtitle: "稍难：跨章节综合辨析，干扰项更接近考试选项",
+      accent: "amber"
     }
   };
 
